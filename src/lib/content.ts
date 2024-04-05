@@ -1,3 +1,5 @@
+import { s } from "vitest/dist/reporters-LLiOBu3g";
+
 const API_URL = "http://localhost:5174/content";
 
 /**
@@ -17,11 +19,16 @@ const fetchContent = async (url = API_URL): Promise<{ content: string }> => {
  * Avoid using DOMParser for implementing this function.
  */
 const parseContentIntoSentences = (content: string) => {
-  return content
-    .replace(/<\/?(speak|p)(>|$)/g, "")
-    .split("<s>")
+  const contentWithoutSpeakTag = content.replace(/<\/?(speak|p)(>|$)/g, "");
+
+  return contentWithoutSpeakTag
+    .slice(
+      contentWithoutSpeakTag.indexOf("<s>"),
+      contentWithoutSpeakTag.lastIndexOf("</s>")
+    )
+    .split("</s>")
     .filter((sentence) => sentence)
-    .map((sentence) => sentence.replace("</s>", ""));
+    .map((sentence) => sentence.replace("</s>", "").replace("<s>", ""));
 };
 
 export { fetchContent, parseContentIntoSentences };

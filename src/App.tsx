@@ -8,14 +8,17 @@ import { fetchContent, parseContentIntoSentences } from "./lib/content";
 
 function App() {
   const [sentences, setSentences] = useState<Array<string>>([]);
-  // const { currentWord, currentSentence, controls, play, pause } = useSpeech(sentences);
-  const { play, pause, currentSentenceIdx, currentWordRange, playbackState } =
+  // const { currentWord, currentSentence, playbackState, play, pause } = useSpeech(sentences);
+  const { currentWordRange, currentSentenceIdx, playbackState, play, pause } =
     useSpeech(sentences);
+  // const { play, pause, currentSentenceIdx, currentWordRange, playbackState } =
+  //   useSpeech(sentences);
 
   const getContent = useCallback(() => {
     (async () => {
       const content = await fetchContent();
       const sentences = parseContentIntoSentences(content.content);
+
       setSentences(sentences);
     })();
   }, []);

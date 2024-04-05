@@ -18,7 +18,9 @@ export const CurrentlyReading = ({
 }) => {
   return (
     <div data-testid="currently-reading">
-      <p data-testid="current-sentence">{sentences[currentSentenceIdx]}</p>
+      <h1>
+        <p data-testid="current-sentence">{sentences[currentSentenceIdx]}</p>
+      </h1>
       {sentences}
     </div>
   );
