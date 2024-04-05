@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { PlayingState, createSpeechEngine } from "./speech";
 
@@ -24,20 +24,26 @@ const useSpeech = (sentences: Array<string>) => {
     load,
   } = createSpeechEngine({
     onEnd: (e) => {
-      console.log("On end", e);
       setPlaybackState("ended");
-      setCurrentSentenceIdx((prev) => prev + 1);
-      // play();
+      if (currentSentenceIdx < sentences.length) {
+        setCurrentSentenceIdx((prev) => prev + 1);
+      }
     },
     onStateUpdate: (state) => {
       setPlaybackState(state);
     },
     onBoundary: (e) => {
-      // console.log(e);
+      console.log(e);
     },
   });
 
   const [playbackState, setPlaybackState] = useState<PlayingState>("paused");
+
+  useEffect(() => {
+    if (currentSentenceIdx > 0) {
+      play();
+    }
+  }, [currentSentenceIdx]);
 
   const play = () => {
     setPlaybackState("playing");
@@ -49,6 +55,11 @@ const useSpeech = (sentences: Array<string>) => {
     pauseSpeech();
   };
 
+  const resetPlaybackState = () => {
+    setCurrentSentenceIdx(0);
+    setCurrentWordRange([0, 0]);
+  };
+
   return {
     currentSentenceIdx,
     currentWordRange,
@@ -56,6 +67,7 @@ const useSpeech = (sentences: Array<string>) => {
     play,
     pause,
     load,
+    resetPlaybackState,
   };
 };
 
