@@ -19,16 +19,17 @@ const fetchContent = async (url = API_URL): Promise<{ content: string }> => {
  * Avoid using DOMParser for implementing this function.
  */
 const parseContentIntoSentences = (content: string) => {
+  if (!content.startsWith("<speak>")) {
+    throw new Error("This is not valid ssml");
+  }
   const contentWithoutSpeakTag = content.replace(/<\/?(speak|p)(>|$)/g, "");
 
   return contentWithoutSpeakTag
-    .slice(
-      contentWithoutSpeakTag.indexOf("<s>"),
-      contentWithoutSpeakTag.lastIndexOf("</s>")
-    )
     .split("</s>")
-    .filter((sentence) => sentence)
-    .map((sentence) => sentence.replace("</s>", "").replace("<s>", ""));
+    .filter((sentence) => sentence.includes("<s>"))
+    .map((sentence) =>
+      sentence.slice(sentence.indexOf("<s>")).replace("<s>", "")
+    );
 };
 
 export { fetchContent, parseContentIntoSentences };

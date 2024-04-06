@@ -16,12 +16,24 @@ export const CurrentlyReading = ({
   currentSentenceIdx: number;
   sentences: string[];
 }) => {
+  const currentSentence = sentences[currentSentenceIdx];
+  const modifiedSentence =
+    currentSentence?.slice(0, currentWordRange[0]) +
+    '<span style="color:red" data-testid="current-word">' +
+    currentSentence?.slice(currentWordRange[0], currentWordRange[1]) +
+    "</span>" +
+    currentSentence?.slice(currentWordRange[1]);
   return (
     <div data-testid="currently-reading">
       <h1>
-        <p data-testid="current-sentence">{sentences[currentSentenceIdx]}</p>
+        <p
+          data-testid="current-sentence"
+          dangerouslySetInnerHTML={{
+            __html: currentSentence ? modifiedSentence : "",
+          }}
+        ></p>
       </h1>
-      {sentences}
+      {sentences.join(" ")}
     </div>
   );
 };

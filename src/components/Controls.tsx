@@ -23,7 +23,7 @@ export const Controls = ({
       <button onClick={state === "playing" ? pause : play}>
         {state === "playing" ? "Pause" : "Play"}
       </button>
-      <button onClick={loadNewContent}>Load new Content</button>
+      <button onClick={loadNewContent}>Load new content</button>
     </div>
   );
 };

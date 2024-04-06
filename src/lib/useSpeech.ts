@@ -10,11 +10,15 @@ import { PlayingState, createSpeechEngine } from "./speech";
   This hook should return react friendly controls for playing, and pausing audio as well as provide information about
   the currently read word and sentence
 */
+
+let prevIndex = 0;
 const useSpeech = (sentences: Array<string>) => {
   const [currentSentenceIdx, setCurrentSentenceIdx] = useState(0);
   const [currentWordRange, setCurrentWordRange] = useState<[number, number]>([
     0, 0,
   ]);
+
+  const [playbackState, setPlaybackState] = useState<PlayingState>("paused");
 
   const {
     play: playSpeech,
@@ -24,41 +28,45 @@ const useSpeech = (sentences: Array<string>) => {
     load,
   } = createSpeechEngine({
     onEnd: (e) => {
-      setPlaybackState("ended");
       if (currentSentenceIdx < sentences.length) {
         setCurrentSentenceIdx((prev) => prev + 1);
+        prevIndex = currentSentenceIdx;
+      } else {
+        setCurrentSentenceIdx(0);
+        prevIndex = 0;
       }
+      setCurrentWordRange([0, 0]);
     },
     onStateUpdate: (state) => {
       setPlaybackState(state);
     },
     onBoundary: (e) => {
-      console.log(e);
+      if (e.name === "word") {
+        const currentWord = sentences[currentSentenceIdx].slice(
+          e.charIndex,
+          e.charIndex + e.charLength
+        );
+
+        setCurrentWordRange([e.charIndex, e.charIndex + e.charLength]);
+      }
     },
   });
 
-  const [playbackState, setPlaybackState] = useState<PlayingState>("paused");
-
-  useEffect(() => {
-    if (currentSentenceIdx > 0) {
-      play();
-    }
-  }, [currentSentenceIdx]);
+  if (prevIndex !== currentSentenceIdx) {
+    load(sentences[currentSentenceIdx]);
+    playSpeech();
+    prevIndex = currentSentenceIdx;
+  }
 
   const play = () => {
-    setPlaybackState("playing");
     load(sentences[currentSentenceIdx]);
     playSpeech();
   };
   const pause = () => {
-    setPlaybackState("paused");
     pauseSpeech();
   };
 
-  const resetPlaybackState = () => {
-    setCurrentSentenceIdx(0);
-    setCurrentWordRange([0, 0]);
-  };
+  console.log(currentSentenceIdx, currentWordRange, playbackState);
 
   return {
     currentSentenceIdx,
@@ -67,7 +75,6 @@ const useSpeech = (sentences: Array<string>) => {
     play,
     pause,
     load,
-    resetPlaybackState,
   };
 };
 
